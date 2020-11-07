@@ -22,20 +22,20 @@ class MapWidget(ttk.Frame):
         self.name = StringVar()
         self.bg = BooleanVar()
         self.repeat = BooleanVar()
+        self.file = StringVar()
 
         self.key_entry = ttk.Entry(self, width=2, textvariable=self.key)
         self.name_entry = ttk.Entry(self, textvariable=self.name)
         self.bg_cb = ttk.Checkbutton(self, text='Background', variable=self.bg)
         self.repeat_cb = ttk.Checkbutton(self, text='Repeat',
                                          variable=self.repeat)
-        self.bar = ttk.Progressbar(self, orient=HORIZONTAL, length=100,
-                                   mode='determinate')
+        self.file_entry = ttk.Entry(self, textvariable=self.file)
 
         self.key_entry.grid(column=0, row=0)
         self.name_entry.grid(column=1, row=0)
         self.bg_cb.grid(column=2, row=0)
         self.repeat_cb.grid(column=3, row=0)
-        self.bar.grid(column=4, row=0)
+        self.file_entry.grid(column=4, row=0)
 
         #self.columnconfigure(2, weight=1)
 
@@ -43,6 +43,7 @@ class MapWidget(ttk.Frame):
         self.name.set(mapping.name)
         self.bg.set(mapping.background)
         self.repeat.set(mapping.repeat)
+        self.file.set(mapping.file)
 
 
 class Application(Tk):
