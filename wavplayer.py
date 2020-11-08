@@ -19,32 +19,33 @@ class Audio:
         print('Terminating portaudio')
         self.p.terminate()
 
-    def play(self, wav_file):
+    def play(self, widget):
 
-        wp = WavPlayer(self, wav_file)
+        wp = WavPlayer(self, widget)
         wp.start()
         self.players.append(wp)
 
     def stop_all(self):
 
+        print('Stopping all')
         for player in self.players:
             player.stop = True
 
 
 class WavPlayer(threading.Thread):
 
-    def __init__(self, audio, wav_file):
+    def __init__(self, audio, widget):
 
         super().__init__()
-        self.wav_file = wav_file
+        self.widget = widget
         self.p = audio.p
         self.audio = audio
         self.stop = False
 
     def run(self):
 
-        wf = wave.open(self.wav_file, 'rb')
-        print('playing', self.wav_file)
+        wf = wave.open(self.widget.file.get(), 'rb')
+        print('playing', self.widget.file.get())
 
         stream = self.p.open(
             format = self.p.get_format_from_width(wf.getsampwidth()),
@@ -67,7 +68,8 @@ class WavPlayer(threading.Thread):
 
         stream.stop_stream()
         stream.close()
-        print('done playing', self.wav_file)
+        print('done playing', self.widget.file.get())
+        self.widget.no_highlight()
 
         # Remove self from list of players
         self.audio.players.remove(self)

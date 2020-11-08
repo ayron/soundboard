@@ -17,6 +17,7 @@ class MapWidget(ttk.Frame):
 
     def __init__(self, parent, key, mapping):
         super().__init__(parent)
+        self.parent = parent
 
         self.key = StringVar()
         self.name = StringVar()
@@ -37,7 +38,9 @@ class MapWidget(ttk.Frame):
         self.repeat_cb.grid(column=3, row=0)
         self.file_entry.grid(column=4, row=0)
 
-        #self.columnconfigure(2, weight=1)
+        s = ttk.Style()
+        s.configure('Map.TEntry', fieldbackground='#0F0')
+        #self.columnconfigure(4, weight=1)
 
         self.key.set(key)
         self.name.set(mapping.name)
@@ -45,17 +48,30 @@ class MapWidget(ttk.Frame):
         self.repeat.set(mapping.repeat)
         self.file.set(mapping.file)
 
+        self.bind_all(key, self.play)
+
+    def play(self, event):
+
+        self.highlight()
+        self.parent.wp.play(self)
+
+    def highlight(self):
+
+        self.name_entry['style'] = 'Map.TEntry'
+
+    def no_highlight(self):
+
+        self.name_entry['style'] = ''
+
 
 class Application(Tk):
 
     def __init__(self):
         super().__init__()
 
-        self.bind_all('<Key>', self.on_key_pressed)
-
         self.wp = wavplayer.Audio()
-
         self.create_widgets()
+        self.bind_all('X', lambda e: self.wp.stop_all())
 
     def create_widgets(self):
 
@@ -63,19 +79,7 @@ class Application(Tk):
             mw = MapWidget(self, k, v)
             mw.grid(column=0, row=i)
 
-    def on_key_pressed(self, event):
 
-        print("pressed", event.char)
-
-        if event.char == 'X':
-            # Stop all sounds
-
-             self.wp.stop_all()
-
-        if event.char in config:
-            wav_file = config[event.char].file
-            self.wp.play(wav_file)
-
-
-app = Application()
-app.mainloop()
+if __name__ == '__main__':
+    app = Application()
+    app.mainloop()
