@@ -79,7 +79,13 @@ class Application(Tk):
         self.create_widgets()
         self.bind_all('X', lambda e: self.wp.stop_all())
 
+
+        self.protocol("WM_DELETE_WINDOW", self.on_close)
+
+    def on_close(self):
+
         self.save_config()
+        self.destroy()
 
     def create_widgets(self):
 
