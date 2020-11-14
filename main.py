@@ -2,20 +2,14 @@
 from tkinter import *
 from tkinter import ttk
 from collections import namedtuple
+import yaml
 
 import wavplayer
 
-Mapping = namedtuple('Mapping', 'name file background repeat')
-
-config = {
-    'f': Mapping('Forest', 'forest.wav', True, True),
-    's': Mapping('Storm', 'storm.wav', True, True),
-    'd': Mapping('Door', 'door.wav', False, False),
-}
 
 class MapWidget(ttk.Frame):
 
-    def __init__(self, parent, key, mapping):
+    def __init__(self, parent, config):
         super().__init__(parent)
         self.parent = parent
 
@@ -42,13 +36,13 @@ class MapWidget(ttk.Frame):
         s.configure('Map.TEntry', fieldbackground='#0F0')
         #self.columnconfigure(4, weight=1)
 
-        self.key.set(key)
-        self.name.set(mapping.name)
-        self.bg.set(mapping.background)
-        self.repeat.set(mapping.repeat)
-        self.file.set(mapping.file)
+        self.key.set(config['key'])
+        self.name.set(config['name'])
+        self.bg.set(config['bg'])
+        self.repeat.set(config['repeat'])
+        self.file.set(config['file'])
 
-        self.bind_all(key, self.play)
+        self.bind_all(config['key'], self.play)
 
     def play(self, event):
 
@@ -63,22 +57,48 @@ class MapWidget(ttk.Frame):
 
         self.name_entry['style'] = ''
 
+    def get_config(self):
+
+        return {
+            'key': self.key.get(),
+            'name': self.name.get(),
+            'bg': self.bg.get(),
+            'repeat': self.repeat.get(),
+            'file': self.file.get()
+        }
 
 class Application(Tk):
 
     def __init__(self):
         super().__init__()
 
+        self.config_path = 'config.yaml'
+        self.load_config()
+
         self.wp = wavplayer.Audio()
         self.create_widgets()
         self.bind_all('X', lambda e: self.wp.stop_all())
 
+        self.save_config()
+
     def create_widgets(self):
 
-        for i, (k, v) in enumerate(config.items()):
-            mw = MapWidget(self, k, v)
+        for i, config in enumerate(self.configs):
+            mw = MapWidget(self, config)
             mw.grid(column=0, row=i)
 
+    def load_config(self):
+
+        with open(self.config_path, 'r') as f:
+            self.configs = yaml.safe_load(f.read())
+
+    def save_config(self):
+
+        print('Saving config')
+        configs = [child.get_config() for child in self.winfo_children()]
+
+        with open(self.config_path, 'w') as f:
+            f.write(yaml.safe_dump(configs))
 
 if __name__ == '__main__':
     app = Application()
