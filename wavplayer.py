@@ -4,7 +4,7 @@ import sys
 import struct
 import threading
 
-CHUNK = 1024
+NUM_FRAMES = 1024
 
 class Audio:
 
@@ -53,18 +53,25 @@ class WavPlayer(threading.Thread):
             rate = wf.getframerate(),
             output = True)
 
-        data = wf.readframes(CHUNK)
+        while not self.stop:
 
-        while len(data) != 0 and not self.stop:
+            data = wf.readframes(NUM_FRAMES)
+
+            if len(data) == 0:
+                if self.widget.repeat.get():
+                    wf.rewind()
+                    continue
+                else:
+                    break
 
             # Lower volume
-            fmt = 'h'*(len(data)//2)
-            values = struct.unpack(fmt, data)
-            values_lower = (int(x*1.0) for x in values)
-            data = struct.pack(fmt, *values_lower)
+            #fmt = 'h'*(len(data)//2)
+            #values = struct.unpack(fmt, data)
+            #values_lower = (int(x*1.0) for x in values)
+            #data = struct.pack(fmt, *values_lower)
 
             stream.write(data)
-            data = wf.readframes(CHUNK)
+            #data = wf.readframes(CHUNK)
 
         stream.stop_stream()
         stream.close()

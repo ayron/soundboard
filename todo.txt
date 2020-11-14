@@ -1,5 +1,4 @@
 TODO
-- Repeat tracks when configured
 - Stop background tracks on new
 - Add new entry from gui
 - Remove entry from gui
