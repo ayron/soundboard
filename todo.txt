@@ -1,0 +1,11 @@
+TODO
+- Pick file with dialog
+- Repeat tracks when configured
+- Stop background tracks on new
+- Add new entry from gui
+- Remove entry from gui
+- Save config on any change, not just close
+- Crossfade background sounds
+- Expand widgets correctly
+- Provide config at command line
+- handle no existing config
