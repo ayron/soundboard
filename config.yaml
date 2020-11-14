@@ -9,7 +9,7 @@
   name: Storm
   repeat: true
 - bg: false
-  file: door.wav
+  file: /home/ayron/Code/soundboard/door.wav
   key: d
   name: Door
   repeat: false

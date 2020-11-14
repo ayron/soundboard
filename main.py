@@ -1,6 +1,7 @@
 # Graphics
 from tkinter import *
 from tkinter import ttk
+from tkinter import filedialog
 from collections import namedtuple
 import yaml
 
@@ -25,12 +26,14 @@ class MapWidget(ttk.Frame):
         self.repeat_cb = ttk.Checkbutton(self, text='Repeat',
                                          variable=self.repeat)
         self.file_entry = ttk.Entry(self, textvariable=self.file)
+        self.file_btn = ttk.Button(self, text='Select', command=self.select_file)
 
         self.key_entry.grid(column=0, row=0)
         self.name_entry.grid(column=1, row=0)
         self.bg_cb.grid(column=2, row=0)
         self.repeat_cb.grid(column=3, row=0)
         self.file_entry.grid(column=4, row=0)
+        self.file_btn.grid(column=5, row=0)
 
         s = ttk.Style()
         s.configure('Map.TEntry', fieldbackground='#0F0')
@@ -43,6 +46,13 @@ class MapWidget(ttk.Frame):
         self.file.set(config['file'])
 
         self.bind_all(config['key'], self.play)
+
+    def select_file(self):
+
+        path = filedialog.askopenfilename(
+            title='Select WAV file',
+            filetypes=[('WAVE', '*.wav')])
+        self.file.set(path)
 
     def play(self, event):
 

@@ -1,5 +1,4 @@
 TODO
-- Pick file with dialog
 - Repeat tracks when configured
 - Stop background tracks on new
 - Add new entry from gui
