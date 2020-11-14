@@ -1,0 +1,15 @@
+- bg: true
+  file: forest.wav
+  key: f
+  name: Forest
+  repeat: true
+- bg: true
+  file: storm.wav
+  key: s
+  name: Storm
+  repeat: true
+- bg: false
+  file: door.wav
+  key: d
+  name: Door
+  repeat: false
