@@ -1,5 +1,5 @@
 TODO
-- Stop background tracks on new
+- Update binding when key updated
 - Add new entry from gui
 - Remove entry from gui
 - Save config on any change, not just close
@@ -7,3 +7,5 @@ TODO
 - Expand widgets correctly
 - Provide config at command line
 - handle no existing config
+- Do not play sounds when editting values
+- Prevent accidental editting of field

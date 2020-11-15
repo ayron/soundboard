@@ -21,6 +21,13 @@ class Audio:
 
     def play(self, widget):
 
+        if widget.bg.get():
+
+            # First stop all other background tracks
+            for player in self.players:
+                if player.widget.bg.get():
+                    player.stop = True
+
         wp = WavPlayer(self, widget)
         wp.start()
         self.players.append(wp)

@@ -77,6 +77,7 @@ class MapWidget(ttk.Frame):
             'file': self.file.get()
         }
 
+
 class Application(Tk):
 
     def __init__(self):
