@@ -9,3 +9,4 @@ TODO
 - handle no existing config
 - Do not play sounds when editting values
 - Prevent accidental editting of field
+- Repeat with time delay
