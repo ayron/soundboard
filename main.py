@@ -1,7 +1,6 @@
 # Graphics
 from tkinter import *
-from tkinter import ttk
-from tkinter import filedialog
+from tkinter import ttk, filedialog, simpledialog
 from collections import namedtuple
 import yaml
 
@@ -106,6 +105,29 @@ class Application(Tk):
                     title='Select WAV file',
                     filetypes=[('WAVE', '*.wav')])
                 self.tree.set(row, column, path)
+
+            elif column == '#2':
+
+                answer = simpledialog.askstring(
+                            "Enter name", "Enter a name for the track",
+                            parent=self)
+
+                self.tree.set(row, column, answer)
+
+            elif column == '#1':
+
+                new_key = simpledialog.askstring(
+                            "Enter key", "Enter a key sequence for the track",
+                            parent=self)
+
+                old_key = self.tree.set(row, column)
+                self.tree.set(row, column, new_key)
+
+                self.tree.unbind(old_key)
+                self.tree.bind(new_key, lambda e, row=row: self.play(row))
+
+            else:
+                print('Column not handled')
 
     def load_config(self):
 
