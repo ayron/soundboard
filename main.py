@@ -8,74 +8,15 @@ import yaml
 import wavplayer
 
 
-class MapWidget(ttk.Frame):
+def get_config(tree, row):
 
-    def __init__(self, parent, config):
-        super().__init__(parent)
-        self.parent = parent
-
-        self.key = StringVar()
-        self.name = StringVar()
-        self.bg = BooleanVar()
-        self.repeat = BooleanVar()
-        self.file = StringVar()
-
-        self.key_entry = ttk.Entry(self, width=2, textvariable=self.key)
-        self.name_entry = ttk.Entry(self, textvariable=self.name)
-        self.bg_cb = ttk.Checkbutton(self, text='Background', variable=self.bg)
-        self.repeat_cb = ttk.Checkbutton(self, text='Repeat',
-                                         variable=self.repeat)
-        self.file_entry = ttk.Entry(self, textvariable=self.file)
-        self.file_btn = ttk.Button(self, text='Select', command=self.select_file)
-
-        self.key_entry.grid(column=0, row=0)
-        self.name_entry.grid(column=1, row=0)
-        self.bg_cb.grid(column=2, row=0)
-        self.repeat_cb.grid(column=3, row=0)
-        self.file_entry.grid(column=4, row=0)
-        self.file_btn.grid(column=5, row=0)
-
-        s = ttk.Style()
-        s.configure('Map.TEntry', fieldbackground='#0F0')
-        #self.columnconfigure(4, weight=1)
-
-        self.key.set(config['key'])
-        self.name.set(config['name'])
-        self.bg.set(config['bg'])
-        self.repeat.set(config['repeat'])
-        self.file.set(config['file'])
-
-        self.bind_all(config['key'], self.play)
-
-    def select_file(self):
-
-        path = filedialog.askopenfilename(
-            title='Select WAV file',
-            filetypes=[('WAVE', '*.wav')])
-        self.file.set(path)
-
-    def play(self, event):
-
-        self.highlight()
-        self.parent.wp.play(self)
-
-    def highlight(self):
-
-        self.name_entry['style'] = 'Map.TEntry'
-
-    def no_highlight(self):
-
-        self.name_entry['style'] = ''
-
-    def get_config(self):
-
-        return {
-            'key': self.key.get(),
-            'name': self.name.get(),
-            'bg': self.bg.get(),
-            'repeat': self.repeat.get(),
-            'file': self.file.get()
-        }
+    return {
+        'key': tree.set(row, 'key'),
+        'name': tree.set(row, 'name'),
+        'bg': tree.set(row, 'bg'),
+        'repeat': tree.set(row, 'repeat'),
+        'file': tree.set(row, 'path')
+    }
 
 
 class Application(Tk):
@@ -90,7 +31,6 @@ class Application(Tk):
         self.create_widgets()
         self.bind_all('X', lambda e: self.wp.stop_all())
 
-
         self.protocol("WM_DELETE_WINDOW", self.on_close)
 
     def on_close(self):
@@ -100,9 +40,72 @@ class Application(Tk):
 
     def create_widgets(self):
 
+        tree = ttk.Treeview(self, show='headings',
+                columns=('key', 'name', 'repeat', 'bg', 'path'))
+
+        tree.column('key', width=35, stretch=False)
+        tree.heading('key', text='Key')
+
+        tree.column('name', width=200, stretch=False)
+        tree.heading('name', text='Name')
+
+        tree.column('repeat', width=40, stretch=False)
+        tree.heading('repeat', text='R')
+
+        tree.column('bg', width=40, stretch=False)
+        tree.heading('bg', text='BG')
+
+        #tree.column('path')
+        tree.heading('path', text='Path')
+
+        tree.grid(column=0, row=0, sticky=N+S+E+W)
+        self.columnconfigure(0, weight=1)
+        self.rowconfigure(0, weight=1)
+
+        tree.bind('<Double-Button-1>', self.on_double_click)
+
+        self.tree = tree
+
         for i, config in enumerate(self.configs):
-            mw = MapWidget(self, config)
-            mw.grid(column=0, row=i)
+
+            row_id = tree.insert('', 'end',
+                    values=(
+                        config['key'],
+                        config['name'],
+                        config['repeat'],
+                        config['bg'],
+                        config['file']))
+
+            tree.bind(config['key'], lambda e, row_id=row_id: self.play(row_id))
+
+        tree.tag_configure('playing', background='#91ff9e')
+
+    def play(self, row_id):
+
+        self.tree.item(row_id, tags='playing')
+        self.wp.play(self.tree, row_id)
+
+    def on_double_click(self, event):
+
+        column = self.tree.identify_column(event.x)
+        row = self.tree.identify_row(event.y)
+
+        print(column, row)
+        if row and column:
+
+            if column == '#3' or column == '#4':
+
+                if self.tree.set(row, column) == '':
+                    self.tree.set(row, column, 'x')
+                else:
+                    self.tree.set(row, column, '')
+
+            elif column == '#5':
+
+                path = filedialog.askopenfilename(
+                    title='Select WAV file',
+                    filetypes=[('WAVE', '*.wav')])
+                self.tree.set(row, column, path)
 
     def load_config(self):
 
@@ -112,10 +115,12 @@ class Application(Tk):
     def save_config(self):
 
         print('Saving config')
-        configs = [child.get_config() for child in self.winfo_children()]
+        configs = [get_config(self.tree, row)
+                   for row in self.tree.get_children()]
 
         with open(self.config_path, 'w') as f:
             f.write(yaml.safe_dump(configs))
+
 
 if __name__ == '__main__':
     app = Application()

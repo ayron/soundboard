@@ -19,16 +19,16 @@ class Audio:
         print('Terminating portaudio')
         self.p.terminate()
 
-    def play(self, widget):
+    def play(self, tree, row_id):
 
-        if widget.bg.get():
+        if tree.set(row_id, 'bg') == 'x':
 
             # First stop all other background tracks
             for player in self.players:
-                if player.widget.bg.get():
+                if player.tree.set(player.row_id, 'bg') == 'x':
                     player.stop = True
 
-        wp = WavPlayer(self, widget)
+        wp = WavPlayer(self, tree, row_id)
         wp.start()
         self.players.append(wp)
 
@@ -41,18 +41,20 @@ class Audio:
 
 class WavPlayer(threading.Thread):
 
-    def __init__(self, audio, widget):
+    def __init__(self, audio, tree, row_id):
 
         super().__init__()
-        self.widget = widget
+        self.tree = tree
+        self.row_id = row_id
         self.p = audio.p
         self.audio = audio
         self.stop = False
 
     def run(self):
 
-        wf = wave.open(self.widget.file.get(), 'rb')
-        print('playing', self.widget.file.get())
+        path = self.tree.set(self.row_id, 'path')
+        wf = wave.open(path, 'rb')
+        print('playing', path)
 
         stream = self.p.open(
             format = self.p.get_format_from_width(wf.getsampwidth()),
@@ -65,7 +67,10 @@ class WavPlayer(threading.Thread):
             data = wf.readframes(NUM_FRAMES)
 
             if len(data) == 0:
-                if self.widget.repeat.get():
+
+                repeat = self.tree.set(self.row_id, 'repeat')
+
+                if repeat == 'x':
                     wf.rewind()
                     continue
                 else:
@@ -82,8 +87,11 @@ class WavPlayer(threading.Thread):
 
         stream.stop_stream()
         stream.close()
-        print('done playing', self.widget.file.get())
-        self.widget.no_highlight()
+        print('done playing', path)
+
+        #self.widget.no_highlight()
+
+        self.tree.item(self.row_id, tags=())
 
         # Remove self from list of players
         self.audio.players.remove(self)

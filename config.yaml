@@ -1,15 +1,15 @@
-- bg: true
-  file: forest.wav
+- bg: x
+  file: /home/ayron/Code/soundboard/forest.wav
   key: f
   name: Forest
-  repeat: false
-- bg: true
+  repeat: ''
+- bg: x
   file: /home/ayron/Code/soundboard/storm.wav
   key: s
   name: Storm
-  repeat: true
-- bg: false
+  repeat: ''
+- bg: ''
   file: /home/ayron/Code/soundboard/door.wav
   key: d
   name: Door
-  repeat: false
+  repeat: ''
