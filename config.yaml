@@ -1,15 +1,10 @@
-- bg: x
-  file: /home/ayron/Code/soundboard/forest.wav
-  key: f
-  name: Forest
-  repeat: ''
-- bg: x
-  file: /home/ayron/Code/soundboard/storm.wav
-  key: s
-  name: Storm
+- bg: ''
+  file: ''
+  key: ''
+  name: New Track
   repeat: ''
 - bg: ''
-  file: /home/ayron/Code/soundboard/door.wav
-  key: d
-  name: Door
+  file: ''
+  key: ''
+  name: New Track
   repeat: ''

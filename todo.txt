@@ -1,6 +1,4 @@
 TODO
 - Save config on any change, not just close
 - Crossfade background sounds
-- Provide config at command line
-- handle no existing config
 - Repeat with time delay

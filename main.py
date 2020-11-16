@@ -1,8 +1,10 @@
-# Graphics
+#!/usr/bin/env python3
+
 from tkinter import *
 from tkinter import ttk, filedialog, simpledialog
 from collections import namedtuple
 import yaml
+import sys
 
 import wavplayer
 
@@ -20,17 +22,17 @@ def get_config(tree, row):
 
 class Application(Tk):
 
-    def __init__(self):
+    def __init__(self, config_path):
         super().__init__()
 
-        self.config_path = 'config.yaml'
+        self.config_path = config_path
         self.load_config()
 
         self.wp = wavplayer.Audio()
         self.create_widgets()
 
         # Controls
-        self.bind_all('X', lambda e: self.wp.stop_all())
+        self.bind_all('S', lambda e: self.wp.stop_all())
         self.bind_all('A', self.add_track)
         self.bind_all('D', self.delete_track)
 
@@ -149,8 +151,11 @@ class Application(Tk):
 
     def load_config(self):
 
-        with open(self.config_path, 'r') as f:
-            self.configs = yaml.safe_load(f.read())
+        try:
+            with open(self.config_path, 'r') as f:
+                self.configs = yaml.safe_load(f.read())
+        except FileNotFoundError:
+            self.configs = []
 
     def save_config(self):
 
@@ -163,5 +168,19 @@ class Application(Tk):
 
 
 if __name__ == '__main__':
-    app = Application()
+
+    print('Usage: python3 {} [config.yaml]'.format(sys.argv[0]))
+    print('')
+    print('Keyboard controls:')
+    print(' A: Add a new track')
+    print(' D: Delete selected tracks')
+    print(' S: Stop all tracks')
+    print('')
+
+    if len(sys.argv) == 2:
+        config_path = sys.argv[1]
+    elif len(sys.argv) == 1:
+        config_path = 'config.yaml'
+
+    app = Application(config_path)
     app.mainloop()
