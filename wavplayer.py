@@ -3,8 +3,16 @@ import wave
 import sys
 import struct
 import threading
+import time
+from enum import Enum, auto
 
 NUM_FRAMES = 1024
+
+class State(Enum):
+    DELAY = auto()
+    OPEN = auto()
+    PLAY = auto()
+    CLOSE = auto()
 
 class Audio:
 
@@ -49,45 +57,64 @@ class WavPlayer(threading.Thread):
         self.p = audio.p
         self.audio = audio
         self.stop = False
+        self.state = State.DELAY
+        self.start_time = time.time()
 
     def run(self):
 
         path = self.tree.set(self.row_id, 'path')
         wf = wave.open(path, 'rb')
-        print('playing', path)
-
-        stream = self.p.open(
-            format = self.p.get_format_from_width(wf.getsampwidth()),
-            channels = wf.getnchannels(),
-            rate = wf.getframerate(),
-            output = True)
 
         while not self.stop:
 
-            data = wf.readframes(NUM_FRAMES)
+            if self.state == State.DELAY:
 
-            if len(data) == 0:
+                delay = self.tree.set(self.row_id, 'delay')
+                if time.time() - self.start_time >= float(delay):
+                    self.state = State.OPEN
+                else:
+                    time.sleep(0.05)
+
+            elif self.state == State.OPEN:
+
+                stream = self.p.open(
+                    format = self.p.get_format_from_width(wf.getsampwidth()),
+                    channels = wf.getnchannels(),
+                    rate = wf.getframerate(),
+                    output = True)
+
+                print('playing', path)
+                self.state = State.PLAY
+
+            elif self.state == State.PLAY:
+
+                data = wf.readframes(NUM_FRAMES)
+
+                if len(data) == 0:
+                    self.state = State.CLOSE
+
+                # Lower volume
+                #fmt = 'h'*(len(data)//2)
+                #values = struct.unpack(fmt, data)
+                #values_lower = (int(x*1.0) for x in values)
+                #data = struct.pack(fmt, *values_lower)
+
+                stream.write(data)
+
+            elif self.state == State.CLOSE:
+
+                stream.stop_stream()
+                stream.close()
+                print('done playing', path)
 
                 repeat = self.tree.set(self.row_id, 'repeat')
 
                 if repeat == 'x':
                     wf.rewind()
-                    continue
+                    self.state = State.DELAY
+                    self.start_time = time.time()
                 else:
                     break
-
-            # Lower volume
-            #fmt = 'h'*(len(data)//2)
-            #values = struct.unpack(fmt, data)
-            #values_lower = (int(x*1.0) for x in values)
-            #data = struct.pack(fmt, *values_lower)
-
-            stream.write(data)
-            #data = wf.readframes(CHUNK)
-
-        stream.stop_stream()
-        stream.close()
-        print('done playing', path)
 
         # Check if there are other players with the same track
         same_players = [player for player in self.audio.players

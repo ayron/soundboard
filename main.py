@@ -16,6 +16,7 @@ def get_config(tree, row):
         'name': tree.set(row, 'name'),
         'bg': tree.set(row, 'bg'),
         'repeat': tree.set(row, 'repeat'),
+        'delay': tree.set(row, 'delay'),
         'file': tree.set(row, 'path')
     }
 
@@ -46,7 +47,7 @@ class Application(Tk):
     def create_widgets(self):
 
         tree = ttk.Treeview(self, show='headings',
-                columns=('key', 'name', 'repeat', 'bg', 'path'))
+                columns=('key', 'name', 'repeat', 'bg', 'delay', 'path'))
 
         tree.column('key', width=35, stretch=False)
         tree.heading('key', text='Key')
@@ -59,6 +60,9 @@ class Application(Tk):
 
         tree.column('bg', width=40, stretch=False)
         tree.heading('bg', text='BG')
+
+        tree.column('delay', width=60, stretch=False)
+        tree.heading('delay', text='Delay (s)')
 
         #tree.column('path')
         tree.heading('path', text='Path')
@@ -80,6 +84,7 @@ class Application(Tk):
                         config['name'],
                         config['repeat'],
                         config['bg'],
+                        config['delay'],
                         config['file']))
 
             if config['key']:
@@ -91,7 +96,7 @@ class Application(Tk):
     def add_track(self, event):
 
         row_id = self.tree.insert('', 'end',
-                values=('', 'New Track', '', '', '',))
+                values=('', 'New Track', '', '', '', ''))
 
     def delete_track(self, event):
 
@@ -118,7 +123,7 @@ class Application(Tk):
                 else:
                     self.tree.set(row, column, '')
 
-            elif column == '#5':
+            elif column == '#6':
 
                 path = filedialog.askopenfilename(
                     title='Select WAV file',
@@ -129,6 +134,14 @@ class Application(Tk):
 
                 answer = simpledialog.askstring(
                             "Enter name", "Enter a name for the track",
+                            parent=self)
+
+                self.tree.set(row, column, answer)
+
+            elif column == '#5':
+
+                answer = simpledialog.askfloat(
+                            "Enter float", "Enter a start delay for the track (s)",
                             parent=self)
 
                 self.tree.set(row, column, answer)
