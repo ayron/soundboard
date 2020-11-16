@@ -28,7 +28,11 @@ class Application(Tk):
 
         self.wp = wavplayer.Audio()
         self.create_widgets()
+
+        # Controls
         self.bind_all('X', lambda e: self.wp.stop_all())
+        self.bind_all('A', self.add_track)
+        self.bind_all('D', self.delete_track)
 
         self.protocol("WM_DELETE_WINDOW", self.on_close)
 
@@ -64,6 +68,7 @@ class Application(Tk):
         tree.bind('<Double-Button-1>', self.on_double_click)
 
         self.tree = tree
+        tree.focus_set()
 
         for i, config in enumerate(self.configs):
 
@@ -75,9 +80,21 @@ class Application(Tk):
                         config['bg'],
                         config['file']))
 
-            tree.bind(config['key'], lambda e, row_id=row_id: self.play(row_id))
+            if config['key']:
+                tree.bind(config['key'],
+                          lambda e, row_id=row_id: self.play(row_id))
 
         tree.tag_configure('playing', background='#91ff9e')
+
+    def add_track(self, event):
+
+        row_id = self.tree.insert('', 'end',
+                values=('', 'New Track', '', '', '',))
+
+    def delete_track(self, event):
+
+        selected = self.tree.selection()
+        self.tree.delete(*selected)
 
     def play(self, row_id):
 
@@ -123,7 +140,8 @@ class Application(Tk):
                 old_key = self.tree.set(row, column)
                 self.tree.set(row, column, new_key)
 
-                self.tree.unbind(old_key)
+                if old_key:
+                    self.tree.unbind(old_key)
                 self.tree.bind(new_key, lambda e, row=row: self.play(row))
 
             else:
