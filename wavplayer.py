@@ -89,9 +89,11 @@ class WavPlayer(threading.Thread):
         stream.close()
         print('done playing', path)
 
-        #self.widget.no_highlight()
-
-        self.tree.item(self.row_id, tags=())
+        # Check if there are other players with the same track
+        same_players = [player for player in self.audio.players
+                        if player.row_id == self.row_id]
+        if len(same_players) <= 1:
+            self.tree.item(self.row_id, tags=())
 
         # Remove self from list of players
         self.audio.players.remove(self)
