@@ -41,6 +41,7 @@ class Application(Tk):
 
     def on_close(self):
 
+        self.wp.stop_all()
         self.save_config()
         self.destroy()
 
